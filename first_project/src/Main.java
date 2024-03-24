@@ -1,38 +1,45 @@
-import java.util.ArrayList;
-
 public class Main {
-    public static void main(String[] args){
-
-        ArrayList<Vec2> pointsForHegaxon = new ArrayList<>();
-        ArrayList<Vec2> pointsForTriangle = new ArrayList<>();
-        ArrayList<Vec2> pointsForSquare = new ArrayList<>();
-
-        pointsForHegaxon.add(new Vec2(100,20));
-        pointsForHegaxon.add(new Vec2(180,60));
-        pointsForHegaxon.add(new Vec2(180,140));
-        pointsForHegaxon.add(new Vec2(100,180));
-        pointsForHegaxon.add(new Vec2(20,140));
-        pointsForHegaxon.add(new Vec2(20,60));
-
-        pointsForTriangle.add(new Vec2(300,197));
-        pointsForTriangle.add(new Vec2(12,209));
-        pointsForTriangle.add(new Vec2(48,322));
-
-        pointsForSquare.add(new Vec2(200,200));
-        pointsForSquare.add(new Vec2(200,100));
-        pointsForSquare.add(new Vec2(100,100));
-        pointsForSquare.add(new Vec2(100,200));
-
-        Shape hexagon = new Polygon(pointsForHegaxon, new Style("yellow", "red", 5));
-        Shape triangle = new Polygon(pointsForTriangle, new Style("purple", "blue", 5));
-        Shape square = new Polygon(pointsForSquare, new Style("black", "gray", 5));
-
+    public static void main(String[] args) {
+        // Tworzymy scenę SVG
         SvgScene scene = new SvgScene();
-        scene.add(hexagon);
-        scene.add(triangle);
-        scene.add(square);
 
-        scene.saveToFile("test.svg");
+        // Tworzymy przykładowe punkty
+        Point[] pointsHexagon = {
+                new Point(100, 20),
+                new Point(180, 60),
+                new Point(180, 140),
+                new Point(100, 180),
+                new Point(20, 140),
+                new Point(20, 60)
+        };
+
+        Point[] pointsTriangle = {
+                new Point(300, 197),
+                new Point(12, 209),
+                new Point(48, 322)
+        };
+
+
+        Style style = new Style("blue", "green", 5);
+        Point startPoint = new Point(10, 10);
+        Point endPoint = new Point(60, 60);
+        Segment line = new Segment(startPoint, endPoint);
+
+        // Wywołujemy metodę square
+        Polygon squarePolygon = Polygon.square(line, style);
+
+        scene.addPolygon(squarePolygon);
+
+
+        // Tworzymy przykładowe wielokąty
+        Polygon hexagon = new Polygon(pointsHexagon, new Style("yellow", "red", 5));
+        Polygon triangle = new Polygon(pointsTriangle, new Style("purple", "blue", 5));
+
+        // Dodajemy wielokąty do sceny
+        scene.addPolygon(hexagon);
+        scene.addPolygon(triangle);
+
+        // Zapisujemy scenę do pliku HTML
+        scene.save("output.html");
     }
-dsadnjaskndka
 }

@@ -1,44 +1,39 @@
+import javax.imageio.IIOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SvgScene {
-
-    private ArrayList<Shape> shapes;
-
-    public void add(Shape shape){
-        shapes.add(shape);
+    private List<Polygon> polygons = new ArrayList<>();
+    public void addPolygon (Polygon polygon){
+        polygons.add(polygon);
     }
-
-    public ArrayList<Shape> getShapes() {
-        return shapes;
-    }
-    public void setShapes(ArrayList<Shape> shapes) {
-        this.shapes = shapes;
-    }
-    public SvgScene() {
-        shapes = new ArrayList<>();
-    }
-
-    public void saveToFile(String filePath){
+    public void save(String filePath) {
+        BufferedWriter writer = null;
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-            writer.write(toSvg());
-            writer.close();
-            System.out.println("Plik " + filePath + " został poprawnie zapisany!");
-        } catch (IOException e) {
-            System.err.println("Wystąpił błąd podczas zapisywania do pliku: " + e.getMessage());
+            writer = new BufferedWriter(new FileWriter(filePath));
+            writer.write("<!DOCTYPE html>\n");
+            writer.write("<html>\n<head>\n<title>SVG Scene</title>\n</head>\n<body>\n");
+            writer.write("<svg width=\"500\" height=\"500\">\n");
+
+            for (Polygon polygon : polygons){
+                writer.write(polygon.toSvg());
+                writer.write("\n");
+            }
+            writer.write("</svg>\n</body>\n</html>");
+        } catch (IOException e){
+            System.err.println("Błąd podczas zapisu pliku: " + e.getMessage());
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    System.err.println("Błąd podczas zamykania pliku: " + e.getMessage());
+                }
+            }
         }
     }
 
-    public String toSvg(){
-        String code = "<svg height=\"360\" width=\"360\" xmlns=\"http://www.w3.org/2000/svg\">";
-        for (Shape poly : shapes){
-            code += "\n\t";
-            code += poly.toSvg();
-        }
-        code += "</svg>";
-        return code;
-    }
 }

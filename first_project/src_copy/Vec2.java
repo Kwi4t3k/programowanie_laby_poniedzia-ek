@@ -16,7 +16,7 @@ class Vec2 {
     }
 
     private int x;
-    private  int y;
+    private int y;
 
     public Vec2(int x, int y) {
         this.x = x;
