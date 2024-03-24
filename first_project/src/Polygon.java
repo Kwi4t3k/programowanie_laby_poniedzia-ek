@@ -1,11 +1,12 @@
 import java.util.Locale;
 
-public class Polygon {
+public class Polygon extends Shape {
     private Point[] points;
-    private Style style;
+//    private Style style;
     public Polygon(Point[] points, Style style) {
+//        this.style = style;
+        super(style);
         this.points = points;
-        this.style = style;
     }
     public String toSvg() {
         String pol = "";
@@ -24,6 +25,8 @@ public class Polygon {
         return pol;
     }
     public Polygon(Polygon other){
+        super(other.style); // Wywołanie konstruktora klasy Shape dla stylu
+
         // Tworzymy nową tablicę o takim samym rozmiarze jak oryginalna
         this.points = new Point[other.points.length];
 

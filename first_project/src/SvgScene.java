@@ -6,10 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SvgScene {
-    private List<Polygon> polygons = new ArrayList<>();
-    public void addPolygon (Polygon polygon){
-        polygons.add(polygon);
+//    private List<Polygon> polygons = new ArrayList<>();
+    private List<Shape> shapes = new ArrayList<>();
+
+//    public void addPolygon (Polygon polygon){
+//        polygons.add(polygon);
+//    }
+
+    public void addShape (Shape shape){
+        shapes.add(shape);
     }
+
     public void save(String filePath) {
         BufferedWriter writer = null;
         try {
@@ -18,10 +25,18 @@ public class SvgScene {
             writer.write("<html>\n<head>\n<title>SVG Scene</title>\n</head>\n<body>\n");
             writer.write("<svg width=\"500\" height=\"500\">\n");
 
-            for (Polygon polygon : polygons){
-                writer.write(polygon.toSvg());
+
+//            for (Polygon polygon : polygons){
+//                writer.write(polygon.toSvg());
+//                writer.write("\n");
+//            }
+
+            for (Shape shape : shapes){
+                writer.write(shape.toSvg());
                 writer.write("\n");
             }
+
+
             writer.write("</svg>\n</body>\n</html>");
         } catch (IOException e){
             System.err.println("Błąd podczas zapisu pliku: " + e.getMessage());
