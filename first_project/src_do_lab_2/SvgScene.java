@@ -1,3 +1,4 @@
+import javax.imageio.IIOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class SvgScene {
 //            }
 
             for (Shape shape : shapes){
-                writer.write(shape.toSvg(""));
+                writer.write(shape.toSvg());
                 writer.write("\n");
             }
 

@@ -4,57 +4,75 @@ public class Main {
         SvgScene scene = new SvgScene();
 
         // Tworzymy przykładowe punkty
-        Point[] pointsHexagon = {
-                new Point(100, 20),
-                new Point(180, 60),
-                new Point(180, 140),
-                new Point(100, 180),
-                new Point(20, 140),
-                new Point(20, 60)
+        Vec2[] pointsHexagon = {
+                new Vec2(130, 50),
+                new Vec2(210, 90),
+                new Vec2(210, 170),
+                new Vec2(130, 210),
+                new Vec2(50, 170),
+                new Vec2(50, 90)
         };
 
-        Point[] pointsTriangle = {
-                new Point(300, 197),
-                new Point(12, 209),
-                new Point(48, 322)
+        Vec2[] pointsTriangle = {
+                new Vec2(300, 197),
+                new Vec2(12, 209),
+                new Vec2(48, 322)
         };
 
         //KWADRAT
 
         Style style = new Style("blue", "green", 5);
-        Point startPoint = new Point(10, 10);
-        Point endPoint = new Point(60, 60);
-        Segment line = new Segment(startPoint, endPoint);
+        Vec2 startVec2 = new Vec2(10, 10);
+        Vec2 endVec2 = new Vec2(60, 60);
+        Segment line = new Segment(startVec2, endVec2);
 
         // Wywołujemy metodę square
         Polygon squarePolygon = Polygon.square(line, style);
 
-        // addPolygon przed zmianą w SvgScene, addShape po zmianie
-
-//        scene.addPolygon(squarePolygon);
-
-//        scene.addShape(squarePolygon);
+        scene.addShape(squarePolygon);
 
 
         //ELIPSA
 
-        Ellipse ellipse = new Ellipse(style, new Point(100, 200), 50.5, 75.7);
-        scene.addShape(ellipse);
+        Shape ellipse = new Ellipse(new Vec2(400, 200), 50.5, 75.7);
+        ellipse = new SolidFillShapeDecorator(ellipse, "pink");
+        ellipse = new StrokeShapeDecorator(ellipse, "green", 10);
 
+        TransformationDecorator.Builder builder = new TransformationDecorator.Builder();
+        builder.rotate(new Vec2(0, 0), 90);
+
+        ellipse = builder.build(ellipse);
+
+        scene.addShape(ellipse);
 
 
         // TRÓJKĄT I HEKSAGON
 
         // Tworzymy przykładowe wielokąty
-        Polygon hexagon = new Polygon(pointsHexagon, new Style("yellow", "red", 5));
-        Polygon triangle = new Polygon(pointsTriangle, new Style("purple", "blue", 5));
+        Shape hexagon = new Polygon(pointsHexagon, new Style("yellow", "red", 5));
+        Shape triangle = new Polygon(pointsTriangle, new Style("purple", "blue", 5));
 
         // Dodajemy wielokąty do sceny
-//        scene.addPolygon(hexagon);
-//        scene.addPolygon(triangle);
 
-//        scene.addShape(hexagon);
-//        scene.addShape(triangle);
+        scene.addShape(hexagon);
+        scene.addShape(triangle);
+
+
+        // POLYGON
+
+        Vec2[] pointsPolygon = {
+                new Vec2(100, 20),
+                new Vec2(180, 60),
+                new Vec2(180, 140),
+                new Vec2(100, 180),
+                new Vec2(20, 140),
+                new Vec2(20, 60)
+        };
+
+        Shape sfp = new SolidFilledPolygon(pointsPolygon, "red", new Style("pink", "black", 7));
+        sfp = new SolidFillShapeDecorator(sfp, "red");
+        sfp = new StrokeShapeDecorator(sfp,"cyan", 5);
+        scene.addShape(sfp);
 
         // Zapisujemy scenę do pliku HTML
         scene.save("output.html");
