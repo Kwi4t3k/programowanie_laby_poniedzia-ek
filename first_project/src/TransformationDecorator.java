@@ -45,10 +45,10 @@ public class TransformationDecorator extends ShapeDecorator{
             return this;
         }
         public TransformationDecorator build(Shape shape){
-            return new TransformationDecorator(shape, translate, rotate, scale, translateVector, rotateCenter, scaleVector, rotateAngle);
+            return new TransformationDecorator(shape, transform);
         }
     }
-    String transform;
+    String transform = null;
 
     public TransformationDecorator(Shape shape, String transform) {
         super(shape);

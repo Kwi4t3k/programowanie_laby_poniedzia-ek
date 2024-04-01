@@ -35,13 +35,13 @@ public class Main {
         //ELIPSA
 
         Shape ellipse = new Ellipse(new Vec2(400, 200), 50.5, 75.7);
+
+        ellipse = new TransformationDecorator.Builder()
+                .rotate(new Vec2(400, 200), 90)
+                .build(ellipse);
+
         ellipse = new SolidFillShapeDecorator(ellipse, "pink");
         ellipse = new StrokeShapeDecorator(ellipse, "green", 10);
-
-        TransformationDecorator.Builder builder = new TransformationDecorator.Builder();
-        builder.rotate(new Vec2(0, 0), 90);
-
-        ellipse = builder.build(ellipse);
 
         scene.addShape(ellipse);
 

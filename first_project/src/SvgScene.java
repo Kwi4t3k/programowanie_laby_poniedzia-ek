@@ -21,32 +21,19 @@ public class SvgScene {
         try {
             writer = new BufferedWriter(new FileWriter(filePath));
             writer.write("<!DOCTYPE html>\n");
-            writer.write("<html>\n<head>\n<title>SVG Scene</title>\n</head>\n<body>\n");
+            writer.write("<html>");
+            writer.write("<body>");
             writer.write("<svg width=\"500\" height=\"500\">\n");
 
 
-//            for (Polygon polygon : polygons){
-//                writer.write(polygon.toSvg());
-//                writer.write("\n");
-//            }
-
-            for (Shape shape : shapes){
-                writer.write(shape.toSvg(""));
-                writer.write("\n");
-            }
-
+            for (Shape shape : shapes)
+                writer.write("\t" + shape.toSvg("") + "\n");
 
             writer.write("</svg>\n</body>\n</html>");
+            writer.close();
+
         } catch (IOException e){
-            System.err.println("Błąd podczas zapisu pliku: " + e.getMessage());
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    System.err.println("Błąd podczas zamykania pliku: " + e.getMessage());
-                }
-            }
+            System.err.println("Błąd podczas zapisu pliku: " + filePath);
         }
     }
 
