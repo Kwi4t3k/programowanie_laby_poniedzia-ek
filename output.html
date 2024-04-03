@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html><body><svg width="500" height="500">
-	<polygon points="10.000000,10.000000 60.000000,10.000000 60.000000,60.000000 10.000000,60.000000 " />
-	<ellipse rx="50.500000" ry="75.700000" cx="400.000000" cy="200.000000" fill="pink" stroke="green" stroke-width="10.000000"   transform="rotate(90.000000 400.000000 200.000000) "/>
+<defs>	<filter id="f1" x="-100%" y="-100%" width="300%" height="300%">
+		<feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+		<feGaussianBlur result="blurOut" in="offOut" stdDeviation="5" />
+		<feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+	</filter>
+</defs>	<polygon points="10.000000,10.000000 60.000000,10.000000 60.000000,60.000000 10.000000,60.000000 " />
+	<ellipse rx="50.500000" ry="75.700000" cx="400.000000" cy="200.000000" filter="url(#f1)" fill="pink" stroke="green" stroke-width="4.000000"   transform="rotate(90.000000 400.000000 200.000000) " />
 	<polygon points="130.000000,50.000000 210.000000,90.000000 210.000000,170.000000 130.000000,210.000000 50.000000,170.000000 50.000000,90.000000 " />
-	<polygon points="300.000000,197.000000 12.000000,209.000000 48.000000,322.000000 " />
+	<polygon points="300.000000,197.000000 12.000000,209.000000 48.000000,322.000000 " fill="url(#g1)" />
 	<polygon points="100.000000,20.000000 180.000000,60.000000 180.000000,140.000000 100.000000,180.000000 20.000000,140.000000 20.000000,60.000000 " <polygon points="red" fill="red" stroke="cyan" stroke-width="5.000000"   />
 </svg>
 </body>

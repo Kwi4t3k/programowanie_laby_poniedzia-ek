@@ -5,13 +5,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SvgScene {
-//    private List<Polygon> polygons = new ArrayList<>();
+    private List<String> defs = new ArrayList<>();
+    private static int index = 0;
+    public int addDefs(String def){
+        defs.add(String.format(def, ++index));
+        return index;
+    }
+    private static SvgScene instance = null;
+    public static SvgScene getInstance() {
+        if (instance == null){
+            instance = new SvgScene();
+        }
+        return instance;
+    }
+
     private List<Shape> shapes = new ArrayList<>();
-
-//    public void addPolygon (Polygon polygon){
-//        polygons.add(polygon);
-//    }
-
     public void addShape (Shape shape){
         shapes.add(shape);
     }
@@ -24,6 +32,13 @@ public class SvgScene {
             writer.write("<html>");
             writer.write("<body>");
             writer.write("<svg width=\"500\" height=\"500\">\n");
+
+
+            writer.write("<defs>");
+            for (String def : defs)
+                writer.write(def + "\n");
+
+            writer.write("</defs>");
 
 
             for (Shape shape : shapes)

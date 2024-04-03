@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
         // Tworzymy scenę SVG
-        SvgScene scene = new SvgScene();
+        SvgScene scene = SvgScene.getInstance();
 
         // Tworzymy przykładowe punkty
         Vec2[] pointsHexagon = {
@@ -36,12 +36,14 @@ public class Main {
 
         Shape ellipse = new Ellipse(new Vec2(400, 200), 50.5, 75.7);
 
+        ellipse = new DropShadowDecorator(ellipse);
+
         ellipse = new TransformationDecorator.Builder()
                 .rotate(new Vec2(400, 200), 90)
                 .build(ellipse);
 
         ellipse = new SolidFillShapeDecorator(ellipse, "pink");
-        ellipse = new StrokeShapeDecorator(ellipse, "green", 10);
+        ellipse = new StrokeShapeDecorator(ellipse, "green", 4);
 
         scene.addShape(ellipse);
 
@@ -51,6 +53,17 @@ public class Main {
         // Tworzymy przykładowe wielokąty
         Shape hexagon = new Polygon(pointsHexagon, new Style("yellow", "red", 5));
         Shape triangle = new Polygon(pointsTriangle, new Style("purple", "blue", 5));
+
+
+        //gradient
+
+        triangle = new GradientFillShapeDecorator.Builder()
+                .setShape(triangle)
+                .addStop(0, "red")
+                .addStop(0.3, "white")
+                .addStop(1, "cyan")
+                .build();
+
 
         // Dodajemy wielokąty do sceny
 
