@@ -1,9 +1,9 @@
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Person {
     private String name;  // Imię osoby
@@ -168,5 +168,76 @@ public class Person {
             // Odczytuje listę osób z pliku i ją zwraca
             return (List<Person>) ois.readObject();
         }
+    }
+
+
+    // LAB 5 PlantUMLRunner
+
+    //zad2
+    public String toUML(){
+        // Definiowanie formatu UML
+        String result = "@startuml\n%s\n%s\n@enduml";
+
+        // Funkcja do usunięcia spacji z ciągu znaków
+        Function<String, String> objectName = (str) -> {return str.replaceAll("\\s+", "");};
+
+        // Funkcja do formatowania linii w diagramie UML
+        Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n", str, objectName.apply(str));
+
+        // Inicjalizacja obiektów i relacji
+        StringBuilder objects = new StringBuilder();
+        StringBuilder relations = new StringBuilder();
+
+        // Iteracja przez wszystkich rodziców
+        for (Person parent : parents){
+            // Dodawanie obiektów do diagramu
+            objects.append(objectLine.apply(parent.name));
+            // Dodawanie relacji do diagramu
+            relations.append(objectName.apply(parent.name)).append("<--").append(objectName.apply(name)).append("\n");
+        }
+
+        // Dodawanie obiektu 'name' do diagramu
+        objects.append(objectLine.apply(name));
+
+        // Zwracanie sformatowanego diagramu UML
+        return String.format(result, objects, relations);
+    }
+
+
+    //zad3
+    public static String toUML(List<Person> personList){
+        // Definiowanie formatu UML
+        String result = "@startuml\n%s\n%s\n@enduml";
+
+        // Funkcja do usunięcia spacji z ciągu znaków
+        Function<String, String> objectName = (str) -> {return str.replaceAll("\\s+", "");};
+
+        // Funkcja do formatowania linii w diagramie UML
+        Function<String, String> objectLine = str -> String.format("object \"%s\" as %s\n", str, objectName.apply(str));
+
+        // Inicjalizacja zbiorów obiektów i relacji
+        Set<String> objects = new HashSet<>();
+        Set<String> relations = new HashSet<>();
+
+        // Funkcja dodająca osobę do diagramu UML
+        Consumer<Person> addPerson = person -> {
+            // Dodawanie obiektu osoby do zbioru obiektów
+            objects.add(objectLine.apply(person.name));
+            // Iteracja przez wszystkich rodziców osoby
+            for (Person parent : person.parents){
+                // Dodawanie relacji do zbioru relacji
+                relations.add(objectName.apply(parent.name) + "<--" + objectName.apply(person.name));
+            }
+        };
+
+        // Dodawanie wszystkich osób z listy do diagramu UML
+        personList.forEach(addPerson);
+
+        // Konwersja zbiorów obiektów i relacji do ciągów znaków
+        String objectString = String.join("\n", relations);
+        String relationString = String.join("\n", relations);
+
+        // Zwracanie sformatowanego diagramu UML
+        return String.format(result, objectString, relationString);
     }
 }
