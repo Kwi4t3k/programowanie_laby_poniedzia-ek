@@ -5,5 +5,8 @@
 - Piekarz https://github.com/mdpiekarz/java_lab_2024
 - Kurant https://github.com/lukaszkurantdev/programowanie_obiektowe
 
+# Repo Natalki ❤️
+https://github.com/Miyukivv/ProgramowanieJava
+
 ## Inne przydatne strony
 - Dokumentacja Oracle https://docs.oracle.com/en%2Fjava%2Fjavase%2F21%2Fdocs%2Fapi%2F%2F/index.html
