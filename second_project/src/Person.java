@@ -1,94 +1,173 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Person {
-    private String name;
-    private LocalDate birthDate, deathDate;
-    private Person mother, father;
+    private String name;  // Imię osoby
+    private LocalDate birthDate, deathDate;  // Daty urodzenia i śmierci osoby
+    private List<Person> parents = new ArrayList<>();  // Lista rodziców osoby
+
+    public Person(String name, LocalDate birthDate, LocalDate deathDate){
+        this.name = name;
+        this.birthDate = birthDate;
+        this.deathDate = deathDate;
+    }
 
     public String getName() {
-        return name;
+        return name;  // Zwraca imię osoby
     }
 
     public LocalDate getBirthDate() {
-        return birthDate;
+        return birthDate;  // Zwraca datę urodzenia osoby
     }
 
     public LocalDate getDeathDate() {
-        return deathDate;
+        return deathDate;  // Zwraca datę śmierci osoby
     }
 
-    public Person(String name, LocalDate birthDate, LocalDate deathDate, Person mother, Person father) {
-        this.name = name;
-        this.birthDate = birthDate;
-        this.deathDate = deathDate;
-        this.mother = mother;
-        this.father = father;
-    }
-    public Person(String name, LocalDate birthDate, LocalDate deathDate) throws NegativeLifespanException {
-        this.name = name;
-        this.birthDate = birthDate;
-        this.deathDate = deathDate;
-        validateLifespan();
+    public static Person fromCsvLine(String line){
+        String[] parts = line.split("," ,-1);   // Metoda split dzieli linię na części, używając przecinka jako separatora
+        String name = parts[0].trim();  // Pobiera imię osoby
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  // Tworzy obiekt DateTimeFormatter z określonym wzorcem daty
+
+        String birthPart = parts[1];  // Pobiera datę urodzenia osoby
+        String deathPart = parts[2];  // Pobiera datę śmierci osoby
+
+        LocalDate death = null;
+        LocalDate birth = null;
+
+        if(!deathPart.isEmpty()){
+            death = LocalDate.parse(deathPart, formatter);  // Przekształca datę śmierci na obiekt LocalDate
+        }
+        birth = LocalDate.parse(birthPart, formatter);  // Przekształca datę urodzenia na obiekt LocalDate
+
+        return new Person(name, birth, death);    // Tworzy nowy obiekt Person i go zwraca
     }
 
     @Override
     public String toString() {
-        return "Person{" + "name=" + name + "\"" + " birthDate=" + birthDate + ", deathDate=" + deathDate + ", parents: " + mother + ", " + father + "}";
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", birthDate=" + birthDate +
+                ", deathDate=" + deathDate +
+                ", parents = " + parents +
+                '}';  // Zwraca reprezentację tekstową obiektu Person
     }
 
-    public static Person fromCsvLine(String line) throws NegativeLifespanException {
-        String[] parts = line.split(",");   // split dzieli sobie linię (z pliku w tym przypadku) i regex mówi metodzie co oddziela elementy tablicy (w tym przypadku ",")
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");  // Ta linia kodu tworzy obiekt DateTimeFormatter z określonym wzorcem daty, który jest używany do przekształcania tekstowych reprezentacji dat na obiekty LocalDate.
-        LocalDate birthDate = LocalDate.parse(parts[1], formatter);   //Ta linia kodu przekształca drugą część (indeks 1) tablicy parts na obiekt LocalDate za pomocą wcześniej utworzonego formatera.
-        LocalDate deathDate = null;   //Ta linia kodu inicjalizuje deathDate jako null. Jest to potrzebne, ponieważ nie każda osoba ma datę śmierci (jeśli jest żywa).
-        if(!parts[2].isEmpty()){
-            deathDate = LocalDate.parse(parts[2], formatter);   //  Ten warunek sprawdza, czy trzecia część (indeks 2) tablicy parts nie jest pusta. Jeśli nie jest pusta, oznacza to, że osoba nie żyje i data śmierci jest przekształcana na obiekt LocalDate.
-        }
-        return new Person(parts[0], birthDate, deathDate);    //  Na końcu metoda tworzy nowy obiekt Person z odczytanymi danymi i zwraca go.
-    }
-
-    public static List<Person> fromCsv(String filePath) throws IOException, NegativeLifespanException, AmbiguousPersonException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath)); // magiczne rzeczy do czytania z pliku
-        List<Person> people = new ArrayList<>();
+    public static List<Person> fromCsv(String filePath) throws IOException, NegativeLifespanException, UndefinedParentException{
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath)); // Tworzy BufferedReader do czytania z pliku
+        List<Person> people = new ArrayList<>();  // Tworzy listę osób
+        List<PersonWithParentsNames> parentsNames = new ArrayList<>();  // Tworzy listę imion rodziców
 
         String line;
 
-        bufferedReader.readLine(); // odczytanie wcześniej pierwszej linii (imię i nazwisko,data urodzenia,data śmierci,rodzic,rodzic) żeby parsowanie dat działało | ogółem pomija pierwszą linię
+        bufferedReader.readLine(); // Pomija pierwszą linię pliku (nagłówek)
 
-        while ((line = bufferedReader.readLine()) != null){ // pętla idzie sobie przez cały plik jeśli wartości są równe "null" to wie że plik się skończył
-            //people.add(fromCsvLine(line)); // Ta linia wywołuje metodę fromCsvLine(line), która przekształca odczytaną linię na obiekt Person i dodaje go do listy people
+        // Czyta plik linia po linii
+        while ((line = bufferedReader.readLine()) != null){
+            // Tworzy obiekt PersonWithParentsNames z linii CSV
+            PersonWithParentsNames personWithParentsNames = PersonWithParentsNames.fromCsvLine(line);
+            // Sprawdza, czy osoba ma prawidłowy czas życia
+            personWithParentsNames.person.validateLifespan();
+            // Sprawdza, czy osoba jest prawidłowa
+            personWithParentsNames.person.validatePerson(people);
+            // Dodaje imiona rodziców do listy
+            parentsNames.add(personWithParentsNames);
+            // Dodaje osobę do listy osób
+            people.add(personWithParentsNames.person);
+        }
+        // Łączy krewnych
+        PersonWithParentsNames.linkRelatives(parentsNames);
 
-            // wersja po dodaniu AmbiguousPersonException
+        try {
+            // Sprawdza, czy wiek rodzicielstwa jest prawidłowy dla każdej osoby
+            for (Person person : people) {
+                person.validateParentingAge();
+            }
+        } catch (ParentingAgeException e){
+            // W przypadku wyjątku prosi o potwierdzenie od użytkownika
+            Scanner scanner = new Scanner(System.in);
+            System.out.println(e.getMessage());
+            System.out.println("Proszę o potwierdzenie [t/n]: ");
+            String response = scanner.nextLine();
 
-            Person person = fromCsvLine(line);
-            person.validatePerson(people); // sprawdzenie czy osoba jest zdublowana (AmbiguousPersonException)
-            people.add(person);
-
+            // Jeśli odpowiedź nie jest "t" ani "n", usuwa osobę z listy
+            if(!response.equals("t") && !response.equals("n")){
+                people.remove(e.person);
+            }
         }
 
-        bufferedReader.close();  // zamykanie readera
-        return people;
+        bufferedReader.close();  // Zamyka BufferedReader
+        return people;  // Zwraca listę osób
     }
 
-    //do NegativeLifespanException (żeby działało trzeba dodać throws do: fromCsv, fromCsvLine, i konstruktora Person. Dodatkowo w konstruktorze musi się pojawić: "validateLifespan();")
-    private void validateLifespan() throws NegativeLifespanException{  // throws NegativeLifespanException oznacza, że metoda może rzucić wyjątek typu NegativeLifespanException.
+    //do NegativeLifespanException
+
+    private void validateLifespan() throws NegativeLifespanException{
+        // Sprawdza, czy osoba nie żyje dłużej niż żyła
         if (deathDate != null && deathDate.isBefore(birthDate)){
-            throw new NegativeLifespanException(this);   // Ta linia kodu rzuca nowy wyjątek NegativeLifespanException. Słowo kluczowe new jest używane do utworzenia nowego obiektu, a this jest przekazywane jako argument do konstruktora NegativeLifespanException, co oznacza, że obiekt Person, dla którego metoda validateLifespan() została wywołana, jest przekazywany do konstruktora wyjątku.
+            // Rzuca wyjątek, jeśli osoba zmarła przed urodzeniem
+            throw new NegativeLifespanException(this);
         }
     }
 
-    //do AmbiguousPersonException (metoda fromCsv została zmodyfikowana i jest dodane: throws AmbiguousPersonException w nagłówku)
+    //do AmbiguousPersonException
+
     private void validatePerson(List<Person> people) throws AmbiguousPersonException {
         for (Person person : people){
-            if(person.getName().equals(getName())){
-                throw new AmbiguousPersonException(person);
+            // Sprawdza, czy istnieje już osoba o takim samym imieniu
+            if(person.name.equals(this.name)){
+                // Rzuca wyjątek, jeśli istnieje już osoba o takim samym imieniu
+                throw new AmbiguousPersonException(name);
             }
         }
     }
+
+    public void addParent(Person person){
+        // Dodaje rodzica do listy rodziców osoby
+        parents.add(person);
+    }
+
+    private void validateParentingAge() throws ParentingAgeException {
+        for(Person parent : parents){
+            // Sprawdza, czy rodzic jest zbyt młody lub nie żyje w momencie narodzin osoby
+            if(birthDate.isBefore(parent.birthDate.plusYears(15)) || (parent.deathDate != null && birthDate.isAfter(parent.deathDate))){
+                // Rzuca wyjątek, jeśli rodzic jest zbyt młody lub nie żyje w momencie narodzin osoby
+                throw new ParentingAgeException(this, parent);
+            }
+        }
+    }
+
+    //statyczne metody toBinaryFile i fromBinaryFile, które zapiszą i odczytają listę osób do i z pliku binarnego
+
+    public static void toBinaryFile(List<Person> personList, String fileName) throws IOException {
+        // Zapisuje listę osób do pliku binarnego
+        try(
+                // Tworzy strumień wyjściowy pliku
+                FileOutputStream fos = new FileOutputStream(fileName);
+                // Tworzy strumień wyjściowy obiektu
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+        ){
+            // Zapisuje listę osób do pliku
+            oos.writeObject(personList);
+        }
+    }
+
+    public static List<Person> fromBinaryFile(String fileName) throws IOException, ClassNotFoundException {
+        // Odczytuje listę osób z pliku binarnego
+        try(
+                // Tworzy strumień wejściowy pliku
+                FileInputStream fis = new FileInputStream(fileName);
+                // Tworzy strumień wejściowy obiektu
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ){
+            // Odczytuje listę osób z pliku i ją zwraca
+            return (List<Person>) ois.readObject();
+        }
+    }
+
 }
